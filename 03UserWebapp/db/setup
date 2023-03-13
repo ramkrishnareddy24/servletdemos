@@ -1,0 +1,3 @@
+use mydb;
+
+create table user(firstName varchar(25), lastName varchar(25), email varchar(25), password varchar(25));
