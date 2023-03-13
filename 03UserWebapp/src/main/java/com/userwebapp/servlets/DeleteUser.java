@@ -7,6 +7,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -24,18 +26,21 @@ public class DeleteUser extends HttpServlet {
         super();
     }
 
-    public void init() {
-  		try {
-  			Class.forName("com.mysql.jdbc.Driver");
-  			connection = DriverManager.getConnection("jdbc:mysql://localhost/mydb","root","root");
-  		} catch (ClassNotFoundException e) {
-  			e.printStackTrace();
-  		} catch (SQLException e) {
-  			e.printStackTrace();
-  		}
-  		
-  		
-  	}
+    public void init(ServletConfig config) {
+		try {
+			ServletContext context = config.getServletContext();
+			String dburl = context.getInitParameter("dburl");
+			String dbuser = context.getInitParameter("dbuser");
+			String dbpassword = context.getInitParameter("dbpassword");
+			Class.forName("com.mysql.jdbc.Driver");
+			connection = DriverManager.getConnection(dburl,dbuser,dbpassword);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}	
+		
+	}
 
   	
   	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
