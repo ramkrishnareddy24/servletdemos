@@ -1,4 +1,4 @@
-package com.preparedstatment;
+
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -17,13 +18,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/addproduct")
-public class AddProduct extends HttpServlet {
+@WebServlet("/loginServlet")
+public class LoginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection connection;
 	private PreparedStatement preparedstmt;
 
-	public AddProduct() {
+	public LoginServlet() {
 		super();
 	}
 
@@ -35,7 +36,7 @@ public class AddProduct extends HttpServlet {
 			String dbpassword = context.getInitParameter("dbpassword");
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection(dburl, dbuser, dbpassword);
-			preparedstmt = connection.prepareStatement("insert into product values(?,?,?,?)");
+			preparedstmt = connection.prepareStatement("select *from user where email=? and password=?");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -47,27 +48,43 @@ public class AddProduct extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		String id = request.getParameter("id");
-		String name = request.getParameter("name");
-		String description = request.getParameter("description");
-		String price = request.getParameter("price");
+		String username = request.getParameter("username");
+		String password = request.getParameter("password");
+	
 
 		response.setContentType("text/html");
 		PrintWriter out = response.getWriter();
 
-		if (!isValidInput(id, true) || !isValidInput(name, false) || !isValidInput(description, false)
-				|| !isValidInput(price, true)) {
+		if (!isValidInput(username, false) || !isValidInput(password, false)) {
 			out.println("<h3>Please Enter valid input...</h3>");
 			return;
 		}
 
 		try {
-			preparedstmt.setInt(1, Integer.parseInt(id));
-			preparedstmt.setString(2, name);
-			preparedstmt.setString(3, description);
-			preparedstmt.setInt(4, Integer.parseInt(price));
-			int result = preparedstmt.executeUpdate();
-			out.println("Product added.");
+			preparedstmt.setString(1, username);
+			preparedstmt.setString(2, password);
+			
+			ResultSet resultSet = null;
+			
+			boolean result = preparedstmt.execute();
+			
+			if(result)
+				resultSet = preparedstmt.getResultSet();
+			
+			if(resultSet.next()) {
+				System.out.println("User Succesfully Logged In");
+				RequestDispatcher rd = request.getRequestDispatcher("homeServlet");
+				String welcomeMessage = "Welcome Home";
+				rd.include(request, response);
+			}
+			else
+			{
+				out.println("User NOT found");
+				RequestDispatcher rd = request.getRequestDispatcher("login.html");
+				rd.include(request, response);
+
+			}
+			
 		} catch (SQLException e) {
 			out.println("Product not created error Occurred :" + e.getMessage());
 		}
