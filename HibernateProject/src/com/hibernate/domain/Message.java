@@ -1,7 +1,12 @@
 package com.hibernate.domain;
 
+
+
 public class Message {
+	
 	private int id;
+	
+	
 	private String text;
 	
 	public Message() {

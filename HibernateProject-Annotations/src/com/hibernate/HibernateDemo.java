@@ -11,7 +11,7 @@ public class HibernateDemo {
 		
 		session.beginTransaction();
 		
-		Message message = new Message("HelloWolrd from Hibernate");
+		Message message = new Message("HelloWolrd from Hibernate-Annotations");
 		
 		session.save(message);
 		session.getTransaction().commit();
